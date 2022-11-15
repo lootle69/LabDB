@@ -1,0 +1,81 @@
+ PRATICAL 10 :-MongoDB Queries
+
+Mongosh
+use jay
+db.createCollection('Jayesh_table')
+db.Jayesh_table.insertOne({name: "jayesh",age: "20", branch: "CSE"})
+db.Jayesh_table.find().preety()
+
+db.Jayesh_table.updateOne({name: 'abhinav'}, {$set:{age :44}})
+
+
+FOR MANY ROWS
+db.Jayesh_table.insertMany({{name: "jayesh",age: "20", branch: "CSE"},{name: "Kishor",age: "21", branch: "CSE")
+
+FOR UPDATE MANY
+db.collection.updateMany({}, {$set: {year:2020}})
+
+FOR DELETE
+db.collection.deleteOne({name: "Kishor"})
+
+FOR $and
+db.contributor.find({$and: [{branch: "CSE"}, {joiningYear: 2018}]}).pretty()
+
+%or
+db.contributor.find({$or: [{branch: "ECE"}, {joiningYear: 2017}]}).pretty()
+
+$not
+db.contributor.find({salary: {$not: {$gt: 2000}}}).pretty()
+
+$nor
+db.contributor.find({$nor: [{salary: 3000}, {branch: "ECE"}]}).pretty()
+
+
+_________________________________________________________________________________________________________________________________________________________________________________
+
+PRATICAL 12--------MongoDB – Map-reduces operations
+
+
+1. create database
+test> use map
+
+2. create collection
+map> db.createCollection("books")
+
+
+3. insert documents
+map> db.books.insertOne({'name':'JAVA','pages':'100'})
+map> db.books.insertOne({'name':'PYTHON','pages':'200'})
+map> db.books.insertOne({'name':'XML','pages':'300'})
+map> db.books.insertOne({'name':'C++','pages':'350'})
+map> db.books.insertOne({'name':'JAVASCRIPT','pages':'250'})
+
+
+4. display documents
+map> db.books.find().pretty()
+
+
+5.write map function on books
+map> var map = function()
+
+
+6. write reduce function on books
+map> var reduce = function(key, values)
+{
+var sum =0; values.forEach(function(doc)
+{
+sum = sum+1;
+});
+return{books:sum};};
+
+
+7. write mapreduce function on books
+map> var count = db.books.mapReduce(map,reduce, {out:"book_results"});
+
+
+8. display the combined result map> db[count.result].find()
+LAST OUTPUT
+[
+{ _id: 'Big Books', value: { books: 3 } },
+{ _id: 'Small Books', value: { books: 2 } }
+]

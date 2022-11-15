@@ -1,0 +1,484 @@
+       pratical 4 :---Use of Control structure and Exception handling is mandatory
+
+mysql> use library;
+Database changed
+mysql> create table borrower(Roll_no int(10) primary key, Name varchar(20) not null, Date_of_issue date not null, Name_of_book varchar(20) not null, Status varchar(1) not null);
+
+mysql> desc borrower;
+
+| Field | Type | Null | Key | Default | Extra |
+
+| Roll_no | int | NO | PRI | NULL | |
+| Name | varchar(20) | NO | | NULL | |
+| Date_of_issue | date | NO | | NULL | |
+| Name_of_book | varchar(20) | NO | | NULL | |
+| Status | varchar(1) | NO | | NULL | |
+
+mysql> create table fine(Roll_no int(10), Date date not null, Amount int(10), foreign key(Roll_no) references borrower(Roll_no));
+
+mysql> desc fine;
+
+| Field | Type | Null | Key | Default | Extra |
+
+| Roll_no | int | YES | MUL | NULL | |
+| Date | date | NO | | NULL | |
+| Amount | int | YES | | NULL | |
+
+
+mysql> insert into borrower values(1, 'Amruta', '2022/07/18', 'MySQL', 'I');
+
+mysql> insert into borrower values(2, 'Siddeshdesh', '2022/06/02', 'Computer Network', 'I');
+
+mysql> insert into borrower values(3, 'Swarali', '2022/06/22', 'Operating System', 'I');
+
+mysql> insert into borrower values(4, 'Bhavesh', '2022/07/17', 'Design of Complier', 'I');
+
+mysql> insert into borrower values(5, 'Chaitali', '2022/08/15', 'Internet of Things', 'I');
+
+mysql> insert into borrower values(6, 'Omkar', '2022/09/02', 'Mobile Computing', 'I');
+
+mysql> select * from borrower;
+
+| Roll_no | Name | Date_of_issue | Name_of_book | Status |
+
+| 1 | Amruta | 2022-07-18 | MySQL | I |
+| 2 | Siddeshdesh | 2022-06-02 | Computer Network | I |
+| 3 | Swarali | 2022-06-22 | Operating System | I |
+| 4 | Bhavesh | 2022-07-17 | Design of Complier | I |
+| 5 | Chaitali | 2022-08-15 | Internet of Things | I |
+| 6 | Omkar | 2022-09-02 | Mobile Computing | I |
+
+mysql> delimiter //
+mysql> create procedure A(IN rollno1 int(10), name1 varchar(20))
+-> begin
+-> declare i_date date;
+-> declare diff int;
+-> declare fine_amt int;
+-> declare EXIT HANDLER FOR SQLEXCEPTION SELECT 'Table not found';
+-> select Date_of_issue into i_date from borrower where Roll_no= rollno1 and Name_of_book = name1;
+-> select DATEDIFF(CURDATE(), i_date) into diff;
+-> if(diff>=15 and diff<=30) then
+-> set fine_amt= diff*5;
+-> insert into fine values(rollno1, CURDATE(), fine_amt);
+-> elseif(diff>30) then
+-> set fine_amt= diff*50;
+-> insert into fine values(rollno1, CURDATE(), fine_amt);
+-> end if;
+-> update borrower set Status= 'R' where Roll_no= rollno1 and Name_of_book = name1;
+-> end
+-> //
+
+mysql> delimiter ;
+mysql> call A(1, 'MySQL');
+
+mysql> select * from fine;
+
+| Roll_no | Date | Amount |
+
+| 1 | 2022-09-04 | 2400 |
+
+1 row in set (0.00 sec)
+mysql> select * from borrower;
+
+| Roll_no | Name | Date_of_issue | Name_of_book | Status |
+
+| 1 | Amruta | 2022-07-18 | MySQL | R |
+| 2 | Siddeshdesh | 2022-06-02 | Computer Network | I |
+| 3 | Swarali | 2022-06-22 | Operating System | I |
+| 4 | Bhavesh | 2022-07-17 | Design of Complier | I |
+| 5 | Chaitali | 2022-08-15 | Internet of Things | I |
+| 6 | Omkar | 2022-09-02 | Mobile Computing | I |
+
+
+mysql> call A(2, 'Computer Network');
+Query OK, 1 row affected (0.01 sec)
+mysql> select * from borrower;
+
+| Roll_no | Name | Date_of_issue | Name_of_book | Status |
+
+| 1 | Amruta | 2022-07-18 | MySQL | R |
+| 2 | Siddeshdesh | 2022-06-02 | Computer Network | R |
+| 3 | Swarali | 2022-06-22 | Operating System | I |
+| 4 | Bhavesh | 2022-07-17 | Design of Complier | I |
+| 5 | Chaitali | 2022-08-15 | Internet of Things | I |
+| 6 | Omkar | 2022-09-02 | Mobile Computing | I |
+
+6 rows in set (0.00 sec)
+mysql> select * from fine;
+
+| Roll_no | Date | Amount |
+
+| 1 | 2022-09-04 | 2400 |
+| 2 | 2022-09-04 | 4700 |
+
+
+mysql> call A(5, 'Internet of Things');
+
+mysql> select * from fine;
+
+| Roll_no | Date | Amount |
+
+| 1 | 2022-09-04 | 2400 |
+| 2 | 2022-09-04 | 4700 |
+| 5 | 2022-09-04 | 100 |
++---------+------------+--------+
+
+mysql> select * from borrower;
+
+| Roll_no | Name | Date_of_issue | Name_of_book | Status |
+
+| 1 | Amruta | 2022-07-18 | MySQL | R |
+| 2 | Siddeshdesh | 2022-06-02 | Computer Network | R |
+| 3 | Swarali | 2022-06-22 | Operating System | I |
+| 4 | Bhavesh | 2022-07-17 | Design of Complier | I |
+| 5 | Chaitali | 2022-08-15 | Internet of Things | R |
+| 6 | Omkar | 2022-09-02 | Mobile Computing | I |
+
+
+mysql> call A(6, 'Mobile Computing');
+
+mysql> select * from borrower;
+
+| Roll_no | Name | Date_of_issue | Name_of_book | Status |
+
+| 1 | Amruta | 2022-07-18 | MySQL | R |
+| 2 | Siddeshdesh | 2022-06-02 | Computer Network | R |
+| 3 | Swarali | 2022-06-22 | Operating System | I |
+| 4 | Bhavesh | 2022-07-17 | Design of Complier | I |
+| 5 | Chaitali | 2022-08-15 | Internet of Things | R |
+| 6 | Omkar | 2022-09-02 | Mobile Computing | R |
+
+
+mysql> select * from fine;
+
+| Roll_no | Date | Amount |
+
+| 1 | 2022-09-04 | 2400 |
+| 2 | 2022-09-04 | 4700 |
+| 5 | 2022-09-04 | 100 |
+
+_______________________________________________________________________________________________________________________________________________________________________________________
+
+
+                                    pratical 5 :--   AREA OF CIRCLE 
+
+
+mysql> create database calculation1;
+
+
+mysql> use calculation1;
+Database changed
+mysql> create table areas(r numeric(2),area numeric(14,2));
+
+
+mysql> delimiter //
+mysql> create procedure proc_area()
+    -> begin
+    -> declare r numeric(2);
+    -> declare area numeric(10,2);
+    -> declare pi numeric(4,2);
+    -> set pi = 3.14;
+    -> set r = 5;
+    -> l1
+    -> :
+    -> while r<=9 do
+    -> set area = pi * power(r,2);
+    -> insert into areas values(r,area);
+    -> set r = r + 1;
+    -> end
+    -> while l1;
+    -> end
+    -> //
+
+
+mysql> delimiter ;
+mysql> call proc_area();
+
+
+mysql> select from areas;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'from areas' at line 1
+mysql> select * from areas;
++------+--------+
+| r    | area   |
++------+--------+
+|    5 |  78.50 |
+|    6 | 113.04 |
+|    7 | 153.86 |
+|    8 | 200.96 |
+|    9 | 254.34 |
++------+--------+
+
+
+________________________________________________________________________________________________________________________________________________________________________________________
+
+                             pratical 6 :--Named PL/SQL Block: PL/SQL Stored Procedure and Stored Function
+
+
+MariaDB [(none)]> use stud;
+Database changed
+MariaDB [stud]> create table stud_marks(rollno int(2),name varchar(12),total_marks
+int(12));
+
+MariaDB [stud]> insert into stud_marks values(1,"Ravi",933),(2,"sagar",450),(3,"sarita",1300),(4,"avi",250),(5,"raj",675);
+
+Records: 5 Duplicates: 0 Warnings: 0
+MariaDB [stud]> select * from stud_marks;
+
+| rollno | name | total_marks |
+
+| 1 | Ravi | 933 |
+| 2 | sagar | 450 |
+| 3 | sarita | 1300 |
+| 4 | avi | 250 |
+| 5 | raj | 675 |
+
+
+MariaDB [stud]> create table new_stud_marks(roll_no int(2),name char(10),grade
+char(10));
+
+delimeter //
+create procedure proc_grade1()
+begin
+declare i int;
+declare n int;
+declare rollno1 int;
+declare name1 varchar(20);
+declare class1 varchar(40);
+declare total1 int;
+declare s1 int;
+declare s2 int;
+declare s3 int;
+declare s4 int;
+declare s5 int;
+select count(*)into n from marks;
+set i=0;
+disp:loop
+set i=i+1;
+select rollno into rollno1 from marks where rollno=i;
+select name into name1 from marks where rollno=i;
+select sub1 into s1 from marks where rollno=i;
+select sub2 into s2 from marks where rollno=i;
+select sub3 into s3 from marks where rollno=i;
+select sub4 into s4 from marks where rollno=i;
+select sub5 into s5 from marks where rollno=i;
+set total1=s1+s2+s3+s4+s5;
+if total1<=1500 and total1>990 then
+set class1='distinction';
+else
+if total1<=989 and total1>900 then
+set class1='first class';
+else
+if total1<899 and total1>825 then
+set class1='higher class';
+else
+set class1='pass class';
+end if;
+end if;
+end if;
+insert into stud_marks values(rollno1,name1,total1);
+insert into results values(rollno1,name1,class1);
+if i=n then
+leave disp;
+end if;
+end loop;
+end
+//
+mysql> create table stud_marks(rolllno int,name varchar(90),class varchar(90));
+
+mysql> create table results(rollno int,name varchar(90),class varchar (90));
+
+mysql> alter table stud_marks drop class;
+
+Records: 0 Duplicates: 0 Warnings: 0
+mysql> alter table stud_marks add total int;
+
+Records: 0 Duplicates: 0 Warnings: 0
+create table marks(rollno int,name varchar(99),sub1 int,sub2 int,sub3 int,sub4 int,sub5 int);
+
+mysql> insert into marks values(1,'komal',254,123,345,234,444);
+
+mysql> select * from marks;
+
+| rollno | name | sub1 | sub2 | sub3 | sub4 | sub5 |
+
+| 1 | komal | 254 | 123 | 345 | 234 | 444 |
+| 2 | shital | 154 | 223 | 325 | 134 | 144 |
+| 3 | raj | 154 | 523 | 245 | 244 | 414 |
+output
+mysql> delimiter ;
+mysql> call proc_grades();
+
+mysql> select * from stud_marks;
+
+| rolllno | name | total |
+
+| 1 | komal | NULL |
+| 2 | shital | NULL |
+| 3 | raj | NULL |
+
+mysql> select * from results;
+
+| rollno | name | class |
+
+| 1 | komal | pass class |
+| 2 | shital | pass class |
+| 3 | raj | pass class |
+
+
+
+_________________________________________________________________________________________________________________________________________________________________________________________
+
+
+PRATICAL 7 :--Cursors: (All types: Implicit, Explicit, Cursor FOR Loop, Parameterized Cursor)
+                      SYNTAX 
+
+                    1.Declare the cursor:CURSOR name IS SELECT statement;
+                    2.Open the cursor:OPEN cursor_name;
+                    3.Fetch the cursor:FETCH cursor_name INTO variable_list;
+                    4.Close the cursor:Close cursor_name;
+
+
+
+create procedure n1(in rno1 int)
+begin
+declare rno2 int;
+declare exit_cond boolean;
+declare c1 cursor for select rollno from o_rollcall where rollno>rno1;
+declare continue handler for not found set exit_cond=TRUE;
+open c1;
+l1:loop
+fetch c1 into rno2;
+if not exists(select * from n_rollcall where rollno=rno2)then
+insert into n_rollcall select * from o_rollcall where rollno=rno2;
+end if;
+if exit_cond then
+close c1;
+leave l1;
+end if;
+end loop l1;
+end
+//
+mysql> create table o_rollcall(rollno int,name varchar(90),address varchar(90));
+
+mysql> create table n_rollcall(rollno int,name varchar(90),address varchar(90));
+
+mysql> insert into o_rollcall values(1,'komal','abc');
+
+mysql> insert into o_rollcall values(2,'raj','pbc');
+
+mysql> insert into o_rollcall values(3,'rudra','pune');
+
+mysql> insert into n_rollcall values(1,'komal','abc');
+
+mysql> insert into n_rollcall values(4,'lina','nashik');
+
+mysql> insert into n_rollcall values(5,'sheetal','aaldi');
+
+mysql> select * from o_rollcall;
+
+| rollno | name | address |
+
+| 1 | komal | abc |
+| 2 | raj | pbc |
+| 3 | rudra | pune |
+
+
+mysql> select * from n_rollcall;
+
+| rollno | name | address |
+
+| 1 | komal | abc |
+| 4 | lina | nashik |
+| 5 | sheetal | aaldi |
+OUTPUT
+mysql> delimiter ;
+mysql> call n1(1);
+
+mysql> select * from n_rollcall;
+
+| rollno | name | address |
+
+| 1 | komal | abc |
+| 4 | lina | nashik |
+| 5 | sheetal | aaldi |
+| 2 | raj | pbc |
+| 3 | rudra | pune |
+
+
+Mysql> select * from o_rollcall;
+
+| rollno | name | address |
+
+| 1 | komal | abc |
+| 2 | raj | pbc |
+| 3 | rudra | pune |
+
+
+
+_______________________________________________________________________________________________________________________________________________________________________________________
+
+PRATICAL 8:--Database Trigger (All Types: Row level and Statement level triggers, Before and After Triggers)
+
+delimiter //
+create trigger tr_ins77_Borrower
+before insert
+on table1
+for each row
+begin
+insert into table2 values(new.rollno,new.name,new.nameofbook);
+end
+
+output
+mysql> insert into table1 values(1,'gg','ggh');
+-> //
+
+mysql> select * from table2;
+-> //
+
+| rollno | name | nameofbook |
+
+| 1 | gg | ggh |
+
+
+delimiter //
+create trigger tr_del_Borrower
+before delete
+on table1
+for each row
+begin
+delete from table2 where rollno=old.rollno;
+end
+//
+output
+mysql> delete from table1 where rollno=1;
+-> //
+
+mysql> select * from table2;
+-> //
+
+| rollno | name | nameofbook |
+| 2 | komal | oop |
++
+
+delimiter //
+create trigger tr_up1_Borrower
+before update
+on table1
+for each row
+begin
+update table2 set rollno=new.rollno where rollno=old.rollno;
+end
+//
+output
+mysql> update table1 set rollno=4 where rollno=2;
+-> //
+
+Rows matched: 1 Changed: 1 Warnings: 0
+mysql> select * from table2;
+-> //
+
+| rollno | name | nameofbook |
+
+| 4 | komal | oop |
+
+_________________________________________________________________________________________________________________________________________________________________________
