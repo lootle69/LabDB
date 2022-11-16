@@ -57,6 +57,10 @@ map> db.books.find().pretty()
 
 5.write map function on books
 map> var map = function()
+{
+var category; if(this.pages>=250) category='Big Books';
+else category='Small Books'; emit(category,{name:this.name});
+};
 
 
 6. write reduce function on books
