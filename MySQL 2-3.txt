@@ -25,7 +25,7 @@ ____________________________________________________________________________
 
 **VIEW**
 Examples: CREATE VIEW v1 AS SELECT CustomerName, ContactName FROM Customers WHERE Country = 'Brazil';
- SELECT * FROM [Brazil Customers];
+ SELECT * FROM v1;
  extra - CREATE OR REPLACE (for replace view)
 
 Droping view -
@@ -107,4 +107,16 @@ ________________________________________________________________________________
 		FULL OUTER JOIN Orders ON Customers.CustomerID=Orders.CustomerID
 		ORDER BY Customers.CustomerName;
 
+
+******
+Subqueries with the SELECT Statement
+Syntax : SELECT column_name [, column_name ]
+	FROM table1 [, table2 ]
+	WHERE column_name OPERATOR
+	(SELECT column_name [, column_name ]
+	FROM table1 [, table2 ]
+	[WHERE])
+Example : SELECT * FROM CUSTOMERS WHERE ID IN (SELECT ID
+	FROM CUSTOMERS
+	WHERE SALARY > 4500) ;
 ________________________________________________________________________________________________
